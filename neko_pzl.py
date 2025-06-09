@@ -1,10 +1,11 @@
 import tkinter
 import random
 
+
 index = 0
 timer = 0
 score = 0
-hisc = 1000
+hisc = 0
 difficulty = 0
 tsugi = 0
 
@@ -14,11 +15,15 @@ mouse_x = 0
 mouse_y = 0
 mouse_c = 0
 
+#공간정보 저장
 neko = []
 check = []
 for i in range(10):
     neko.append([0, 0, 0, 0, 0, 0, 0, 0])#리스트안에 리스트가 있음.
     check.append([0, 0, 0, 0, 0, 0, 0, 0])#가로 8개가 세로 10번 반복됨.
+
+#블럭 정보 저장 #4번
+blockcount=[0,0,0,0,0,0] #0~5까지 index를 갖고있음
 
 #함수 영역
 def mouse_move(e):
@@ -38,6 +43,7 @@ def draw_neko(): #NEKO를 지우고 생성하는 과정을 반복.
                 cvs.create_image(x * 72 + 60, y * 72 + 60, image=img_neko[neko[y][x]], tag="NEKO") #NEKO 생성
 # 첫번째 시작할 위치값(60)에 동일한 값(72)으로 이동하는 것.
 def check_neko():
+    global blockcount #4번
     for y in range(10):
         for x in range(8): #모든 칸에 대해서 실행
             check[y][x] = neko[y][x] #neko-> check(복사)
@@ -46,7 +52,7 @@ def check_neko():
         for x in range(8): #  맨 위와 맨 아래줄을 제외한 모든 칸에 대해서 실행
             if check[y][x] > 0: #세로 블럭
                 if check[y - 1][x] == check[y][x] and check[y + 1][x] == check[y][x]: 
-                    neko[y - 1][x] = 7 #관련된 모든 블럭을 7로 바꿔줌
+                    neko[y - 1][x] = 7 #관련된 모든 블럭을 7로 바꿔줌 #파괴전 이펙트
                     neko[y][x] = 7
                     neko[y + 1][x] = 7
 
@@ -70,6 +76,15 @@ def check_neko():
                     neko[y][x] = 7
                     neko[y - 1][x + 1] = 7
 
+    for y in range(0,9):
+        for x in range(0,7):
+            if check[y][x] > 0: #대각선 블럭
+                if check[y][x + 1] == check[y][x] and check[y + 1][x] == check[y][x]: #왼쪽 상단 오른쪽 하단
+                    neko[y][x] = 7
+                    neko[y][x + 1] = 7
+                    neko[y + 1][x] = 7
+                    neko[y + 1][x + 1] = 7
+
 def sweep_neko():
     num = 0
     for y in range(10):
@@ -77,6 +92,7 @@ def sweep_neko():
             if neko[y][x] == 7:
                 neko[y][x] = 0 #빈칸
                 num = num + 1 #파괴된 블럭개수를 표현
+    print("blockcount:", blockcount) #4번
     return num
 
 def drop_neko(): 
