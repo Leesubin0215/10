@@ -1,6 +1,6 @@
 import tkinter
 import random
-
+import tkinter.messagebox
 
 index = 0
 timer = 0
@@ -15,6 +15,7 @@ mouse_x = 0
 mouse_y = 0
 mouse_c = 0
 play_timer = 0
+inactive_timer = 0
 
 #공간정보 저장
 neko = []
@@ -140,6 +141,7 @@ def game_main():
         draw_txt("Hard", 312, 708, 40, "white", "TITLE")
         index = 1 
         mouse_c = 0
+
     elif index == 1:  # 타이틀 화면, 시작 대기
         difficulty = 0 #초기값
         if mouse_c == 1:
@@ -169,8 +171,7 @@ def game_main():
             play_timer += 1 # 경기 시간 증가
             inactive_timer += 1 # 조작 없음 시간 증가
 
-            # 블럭 조작 감지
-            if key[0] == 1 or key[1] == 1 or key [2] == 1 or key [3] == 1:
+            if mouse_c == 1:
                 inactive_timer = 0
 
             if inactive_timer >= 300 : #약 5초
@@ -225,15 +226,33 @@ def game_main():
     draw_txt("SCORE " + str(score), 160, 60, 32, "blue", "INFO")
     draw_txt("HISC " + str(hisc), 550, 60, 32, "yellow", "INFO")
     draw_txt("TIME" + str(play_timer), 300, 100, 28, "white", "INFO") #시간 출력
+    draw_txt("5초 이상 클릭 없으면 자동 낙하!", 312, 920, 24, "red", "INFO")
     if tsugi > 0:
         cvs.create_image(792, 128, image=img_neko[tsugi], tag="INFO")
     root.after(100, game_main)
+
+#게임 루프 함수 아래에 esc_key 함수 추가
+def esc_key(event):
+    global index
+    if index in [2,3,4,5]:
+        res = tkinter.messagebox.askyesno("종료 확인","게임을 종료하시겠습니까?" )
+        if res:
+            #게임 상태 초기화
+            for y in range(12):
+                for x in range(10):
+                    neko[y][x]=0
+            cvs.delete("NEKO")
+            cvs.delete("CURSOR")
+            cvs.delete("INFO")
+            index = 0
+            game_main()
 
 root = tkinter.Tk()
 root.title("블록 낙하 퍼즐 '야옹야옹'")
 root.resizable(False, False)
 root.bind("<Motion>", mouse_move)
 root.bind("<ButtonPress>", mouse_press)
+root.bind("<Escape>", esc_key)
 cvs = tkinter.Canvas(root, width=912, height=960) #이미지 사이즈 #나중에 수정
 cvs.pack()
 
